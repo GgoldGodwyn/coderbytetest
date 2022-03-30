@@ -21,5 +21,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post('createAccount',[transaction::class,'createAccount']);
 Route::post('creditAccount',[transaction::class,'creditAccount']);
+Route::post('debitAccount',[transaction::class,'debitAccount']);
+Route::post('checkbalance',[transaction::class,'checkbalance']);
+
 
 

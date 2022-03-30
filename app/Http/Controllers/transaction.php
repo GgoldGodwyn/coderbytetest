@@ -15,10 +15,6 @@ class transaction extends Controller
             'customerName'=>'required',
             'accountBalace'=>'required',
         ]);
-        // customerName
-        //generate accountNumber
-        //accountBalace = 0
-        // comment = "null"
 
         $user  = new banking_service;
         $user->customerName = $req->customerName;
@@ -40,7 +36,6 @@ class transaction extends Controller
         }
 
         $user->accountNumber = $num_str;
-        // return $user->accountNumber;
 
 
         $result = $user->save();
@@ -55,53 +50,87 @@ class transaction extends Controller
     function creditAccount(Request $req){
         $this->validate($req,[
             'accountNumber'=>'required',
+            'amount'=>'required',
         ]);
 
-        // customerName
-        //generate accountNumber
-        //accountBalace = 0
-        // comment = "null"
 
-        $result = banking_service::where('accountNumber','=',$req->accountNumber);
+        $result = banking_service::where('accountNumber','=',$req->accountNumber)->orderBy('created_at', 'desc')->get();
         if($result->count()<1){
             return \response(["response"=>"No associated Account"],501);
         }
+        $balance = $result[0]["accountBalace"] + $req->amount;
+        $user = new banking_service;
+        $user->customerName = $result[0]["customerName"];
+        $user->accountNumber = $req->accountNumber;
+        $user->accountBalace = $balance;
+        $user->comment = " ";// $req->comment;
 
-         return banking_service::where('accountNumber','=',$req->accountNumber)->get();
-        // $balance = $result[0]["accountBalace"];
-        // return $balance;
-            
-        // return $result;
-        // if($result->count()>0){
-        // if($result[0]["name"]){
-        //     return \response(["response"=>"data saved"],201);
-        // }
-        // else{
-        //     return \response(["response"=>"failed register"],501);
-        // }
-        // }
-        //     return "junck";
-    }
-
- /*  
-    
-    function debitAccount(Request $req){
-        $this->validate($req,[
-            'email'=>'required',
-            'password'=>'required'
-        ]);
-
-        $result = create new record
-        return $result;
-        if($result->count()>0){
-        if($result[0]["name"]){
+        $result = $user->save();
+         
+        if($result){
             return \response(["response"=>"data saved"],201);
         }
         else{
-            return \response(["response"=>"failed register"],501);
+            return \response(["response"=>"failed to credit account"],501);
         }
-        }
-            return "junck";
     }
-    */
+
+    
+    function debitAccount(Request $req){
+        $this->validate($req,[
+            'accountNumber'=>'required',
+            'amount'=>'required',
+        ]);
+
+
+        $result = banking_service::where('accountNumber','=',$req->accountNumber)->orderBy('created_at', 'desc')->get();
+        if($result->count()<1){
+            return \response(["response"=>"No associated Account"],501);
+        }
+        $balance = $result[0]["accountBalace"] - $req->amount;
+        $user = new banking_service;
+        $user->customerName = $result[0]["customerName"];
+        $user->accountNumber = $req->accountNumber;
+        $user->accountBalace = $balance;
+        $user->comment = " ";// $req->comment;
+
+        $result = $user->save();
+         
+        if($result){
+            return \response(["response"=>"data saved"],201);
+        }
+        else{
+            return \response(["response"=>"failed to debit account"],501);
+        }
+    }
+
+//////////
+
+function checkbalance(Request $req){
+    $this->validate($req,[
+        'accountNumber'=>'required',
+    ]);
+
+
+    $result = banking_service::where('accountNumber','=',$req->accountNumber)->orderBy('created_at', 'desc')->get();
+    if($result->count()<1){
+        return \response(["response"=>"No associated Account"],501);
+    }
+     
+    if($result){
+        return \response([$result[0]],201);
+    }
+    else{
+        return \response(["response"=>"failed to credit account"],501);
+    }
 }
+
+       
+
+}
+
+/*  "customerName": "ggold",
+        "accountNumber": 968199,
+        "accountBalace": 1342,
+        "comment": " "
+ */

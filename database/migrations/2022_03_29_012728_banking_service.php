@@ -21,6 +21,7 @@ class BankingService extends Migration
             $table->integer("accountNumber");
             $table->integer("accountBalace");
             $table->string("comment");
+            $table->softDeletes();
         });
     }
 
